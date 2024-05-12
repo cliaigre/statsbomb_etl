@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - "3306:${MYSQL_PORT}"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+  admin:
+    image: phpmyadmin
+    restart: always
+    environment:
+      - PMA_ARBITRARY=1
+    ports:
+      - 8080:80
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ETL_MODE: $ETL_MODE
+    restart: on-failure
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db:database
+volumes:
+  db-data:
