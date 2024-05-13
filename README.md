@@ -1,4 +1,4 @@
-# AZ case study
+# Statsbomb ETL
 
 ## Requirements
 
